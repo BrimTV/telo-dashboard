@@ -1,0 +1,688 @@
+<meta charset="utf-8">
+<meta name="robots" content="noindex,nofollow,noarchive">
+<title>Сарафанное древо</title>
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<style>
+  :root{
+    --bg:#F5F4EF; --panel:#FDFCF9; --panel-br:#E3E1D8;
+    --ink:#23252E; --ink-2:#5C6070; --ink-3:#9296A3;
+    --don:#9A6A10; --don-glow:#B57C13; --del:#04836F; --act:#3D5FC2;
+    --off:#A2A5AF; --cold:#CBC7BA; --edge:#23252E; --edge-op:.15;
+    --hl:#8A5C08; --halo:rgba(200,145,42,.26); --chip:#EEEDE6; --rev:#4A4E5E;
+    --neb:#9A6A10; --neb-op:.10; --cname:#9296A3;
+    --shadow:0 10px 30px rgba(30,30,40,.12);
+  }
+  @media (prefers-color-scheme: dark){
+    :root:not([data-theme="light"]){
+      --bg:#12141C; --panel:#1B1E2B; --panel-br:#2A2E3F;
+      --ink:#E9E7DF; --ink-2:#A7ABBB; --ink-3:#6E7284;
+      --don:#B58121; --don-glow:#E3A93C; --del:#26A98C; --act:#6F8FE8;
+      --off:#565B6B; --cold:#454A5C; --edge:#E9E7DF; --edge-op:.13;
+      --hl:#E3A93C; --halo:rgba(227,169,60,.28); --chip:#232736; --rev:#C8CBD6;
+      --neb:#6F8FE8; --neb-op:.13; --cname:#6E7284;
+      --shadow:0 10px 30px rgba(0,0,0,.45);
+    }
+  }
+  :root[data-theme="dark"]{
+    --bg:#12141C; --panel:#1B1E2B; --panel-br:#2A2E3F;
+    --ink:#E9E7DF; --ink-2:#A7ABBB; --ink-3:#6E7284;
+    --don:#B58121; --don-glow:#E3A93C; --del:#26A98C; --act:#6F8FE8;
+    --off:#565B6B; --cold:#454A5C; --edge:#E9E7DF; --edge-op:.13;
+    --hl:#E3A93C; --halo:rgba(227,169,60,.28); --chip:#232736; --rev:#C8CBD6;
+    --neb:#6F8FE8; --neb-op:.13; --cname:#6E7284;
+    --shadow:0 10px 30px rgba(0,0,0,.45);
+  }
+  *{box-sizing:border-box; margin:0}
+  html,body{height:100%}
+  body{
+    background:var(--bg); color:var(--ink); overflow:hidden;
+    -webkit-text-size-adjust:100%; touch-action:manipulation;
+    font:14px/1.45 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;
+  }
+  .serif{font-family:"Iowan Old Style","Palatino Linotype",Palatino,Georgia,serif}
+  header{
+    position:fixed; inset:0 0 auto 0; z-index:20; padding:13px 20px 9px;
+    display:flex; align-items:baseline; gap:20px; flex-wrap:wrap; pointer-events:none;
+    background:linear-gradient(var(--bg) 58%, transparent);
+  }
+  header>*{pointer-events:auto}
+  h1{font-size:24px; font-weight:600; letter-spacing:.01em; text-wrap:balance}
+  h1 small{display:block; font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
+    font-size:11.5px; font-weight:400; color:var(--ink-3); letter-spacing:.05em; margin-top:2px}
+  .stats{display:flex; gap:18px; flex-wrap:wrap}
+  .stat{min-width:68px}
+  .stat b{display:block; font-size:19px; font-weight:600; font-variant-numeric:tabular-nums}
+  .stat span{font-size:10.5px; text-transform:uppercase; letter-spacing:.09em; color:var(--ink-3)}
+  .stat.gold b{color:var(--don-glow)}
+  .legend{display:flex; gap:9px; align-items:center; flex-wrap:wrap; font-size:12px; color:var(--ink-2)}
+  .legend i{display:inline-block; width:9px; height:9px; border-radius:50%; margin-right:5px; vertical-align:-1px}
+  .legend button{
+    font:inherit; color:inherit; background:none; border:1px solid transparent;
+    border-radius:13px; padding:3px 9px 3px 7px; cursor:pointer; white-space:nowrap;
+    -webkit-tap-highlight-color:transparent;
+  }
+  .legend button:hover{border-color:var(--panel-br)}
+  .legend button[aria-pressed="true"]{background:var(--chip); border-color:var(--hl); color:var(--ink)}
+  .legend .l-don i{background:var(--don); box-shadow:0 0 0 3px var(--halo)}
+  .legend .l-del i{background:var(--del)}
+  .legend .l-act i{background:var(--act)}
+  .legend .l-off i{background:transparent; border:1.6px solid var(--off); width:8px; height:8px}
+  .legend .l-cold i{background:var(--cold)}
+  .legend .l-rev i{background:var(--del); box-shadow:0 0 0 1.5px var(--bg), 0 0 0 3.2px var(--rev)}
+  .search{margin-left:auto}
+  .search input{
+    background:var(--chip); color:var(--ink); border:1px solid var(--panel-br);
+    border-radius:18px; padding:7px 14px; font-size:13px; width:214px; outline:none;
+  }
+  .search input:focus{border-color:var(--hl)}
+  .search .hits{font-size:11px; color:var(--ink-3); margin-left:8px}
+  .chips{flex-basis:100%; display:flex; gap:7px; flex-wrap:wrap; align-items:center;
+    max-height:60px; overflow:hidden}
+  .chips .cap{font-size:10.5px; text-transform:uppercase; letter-spacing:.09em; color:var(--ink-3); margin-right:2px}
+  .chip{
+    background:var(--chip); border:1px solid var(--panel-br); color:var(--ink);
+    border-radius:15px; padding:4px 11px; font-size:12px; cursor:pointer;
+    font-variant-numeric:tabular-nums;
+  }
+  .chip:hover{border-color:var(--hl)}
+  .chip b{color:var(--don-glow); font-weight:600}
+  #stage{position:absolute; inset:0; cursor:grab; touch-action:none}
+  #stage.dragging{cursor:grabbing}
+  svg{display:block; width:100%; height:100%}
+  .cname{fill:var(--cname); letter-spacing:.16em; text-transform:uppercase;
+    pointer-events:none; font-weight:600; opacity:.62}
+  .csub{fill:var(--cname); letter-spacing:.05em; pointer-events:none; opacity:.62}
+  .nodelab{fill:var(--ink-2); pointer-events:none; paint-order:stroke;
+    stroke:var(--bg); stroke-width:3.5px; stroke-linejoin:round}
+  .nodelab.don{fill:var(--don-glow); font-weight:600}
+  .nodelab.root{fill:var(--ink); font-weight:600}
+  #tip{
+    position:fixed; z-index:40; pointer-events:none; display:none; max-width:262px;
+    background:var(--panel); border:1px solid var(--panel-br); border-radius:10px;
+    padding:10px 12px; font-size:12.5px; box-shadow:var(--shadow);
+  }
+  #tip b{font-size:14px}
+  #tip .row{color:var(--ink-2); margin-top:3px}
+  #tip .don{color:var(--don-glow); font-weight:600}
+  #panel{
+    position:fixed; z-index:30; top:96px; right:16px; width:288px; max-height:calc(100% - 120px);
+    overflow:auto; background:var(--panel); border:1px solid var(--panel-br); border-radius:14px;
+    padding:16px 18px; box-shadow:var(--shadow); display:none;
+  }
+  #panel h2{font-size:19px; font-weight:600}
+  #panel .sub{color:var(--ink-3); font-size:11.5px; margin:2px 0 10px}
+  #panel .kv{display:flex; justify-content:space-between; gap:10px; padding:5px 0;
+    border-top:1px solid var(--panel-br); font-variant-numeric:tabular-nums}
+  #panel .kv span{color:var(--ink-2)}
+  #panel .kv b.gold{color:var(--don-glow)}
+  #panel h3{font-size:11px; text-transform:uppercase; letter-spacing:.09em; color:var(--ink-3); margin:14px 0 6px}
+  #panel .chain{display:flex; flex-direction:column}
+  #panel .chain a{color:var(--ink); text-decoration:none; padding:4px 0 4px 14px;
+    position:relative; font-size:13px}
+  #panel .chain a::before{content:""; position:absolute; left:2px; top:0; bottom:0;
+    width:2px; background:var(--panel-br)}
+  #panel .chain a:first-child::before{top:50%}
+  #panel .chain a:last-child::before{bottom:50%}
+  #panel .chain a::after{content:""; position:absolute; left:-1px; top:50%;
+    transform:translateY(-50%); width:8px; height:8px; border-radius:50%; background:var(--ink-3)}
+  #panel .chain a.cur::after{background:var(--don-glow); box-shadow:0 0 0 3px var(--halo)}
+  #panel .chain a:hover{color:var(--hl)}
+  #panel .chain a i{font-style:normal; color:var(--don-glow); font-size:12px}
+  #panel .vk{display:inline-block; margin-top:12px; font-size:12.5px; color:var(--hl); text-decoration:none}
+  #panel .close{position:absolute; top:10px; right:14px; background:none; border:none;
+    color:var(--ink-3); font-size:18px; cursor:pointer; line-height:1}
+  .hint{position:fixed; z-index:10; left:20px; bottom:14px; font-size:11.5px; color:var(--ink-3)}
+  #zoom{position:fixed; z-index:25; right:16px; bottom:16px; display:flex; flex-direction:column; gap:6px}
+  #zoom button{
+    width:40px; height:40px; border-radius:11px; cursor:pointer;
+    background:var(--panel); border:1px solid var(--panel-br); color:var(--ink);
+    font-size:19px; line-height:1; box-shadow:var(--shadow); -webkit-tap-highlight-color:transparent;
+    touch-action:manipulation; display:flex; align-items:center; justify-content:center;
+  }
+  #zoom button:active{background:var(--chip)}
+  @media (max-width:760px){
+    header{gap:10px; padding:10px 14px}
+    h1{font-size:18px}
+    .stats{gap:12px} .stat b{font-size:16px}
+    .search{margin-left:0} .search input{width:168px}
+    .chips{display:none}
+    #panel{top:auto; bottom:0; right:0; left:0; width:auto; max-height:56%;
+      border-radius:14px 14px 0 0}
+    .hint{display:none}
+    #zoom{right:10px; bottom:10px}
+    body.panel-open #zoom{display:none}
+  }
+  @media (prefers-reduced-motion:no-preference){
+    #world{animation:fi .9s ease both}
+    @keyframes fi{from{opacity:0}to{opacity:1}}
+  }
+</style>
+
+<header>
+  <h1 class="serif">Сарафанное древо<small>денежные разборы · срез 2026-09-01 05:53</small></h1>
+  <div class="stats" id="stats"></div>
+  <div class="legend" id="legend">
+    <button class="l-don" data-f="donated"  aria-pressed="false"><i></i>донат</button>
+    <button class="l-del" data-f="delivered" aria-pressed="false"><i></i>разбор выдан</button>
+    <button class="l-act" data-f="active"   aria-pressed="false"><i></i>в воронке</button>
+    <button class="l-off" data-f="off"      aria-pressed="false"><i></i>отказ / тишина</button>
+    <button class="l-cold" data-f="cold"    aria-pressed="false"><i></i>не заходили</button>
+    <button class="l-rev" data-f="rev"      aria-pressed="false"><i></i>отзыв выложен</button>
+  </div>
+  <div class="search"><input id="q" placeholder="имя…" autocomplete="off" spellcheck="false"><span class="hits" id="hits"></span></div>
+  <div class="chips" id="chips"></div>
+</header>
+
+<div id="stage"><svg id="svg">
+  <defs>
+    <radialGradient id="neb">
+      <stop offset="0%"   stop-color="var(--neb)" stop-opacity="1"/>
+      <stop offset="55%"  stop-color="var(--neb)" stop-opacity=".45"/>
+      <stop offset="100%" stop-color="var(--neb)" stop-opacity="0"/>
+    </radialGradient>
+  </defs>
+  <g id="world"></g>
+</svg></div>
+<div id="tip"></div>
+<div id="panel"></div>
+<div class="hint">колесо или два пальца — масштаб · перетаскивание — обзор · клик по человеку — его цепочка · клик по метке легенды — только они</div>
+<div id="zoom">
+  <button id="zin"  aria-label="приблизить">+</button>
+  <button id="zout" aria-label="отдалить">−</button>
+  <button id="zfit" aria-label="показать всё" style="font-size:15px">⤢</button>
+</div>
+
+<script>
+const DATA = {"generated":"2026-09-01 05:53","nodes":[{"id":1,"name":"ТаргетХантер","ref":null,"gen":0,"don":0,"up":false,"st":"cold","rev":false,"deep":false,"desc":86,"dondown":800,"syn":true,"x":0.0,"y":0.0,"cl":2,"r":13.0},{"id":2,"name":"Дмитрий","ref":1,"gen":1,"don":0,"up":false,"st":"delivered","rev":false,"deep":true,"desc":81,"dondown":800,"x":147.1,"y":-263.4,"cl":1,"r":4.4},{"id":3,"name":"Марина","ref":2,"gen":2,"don":0,"up":false,"st":"delivered","rev":true,"deep":false,"desc":2,"dondown":0,"x":112.4,"y":-344.2,"cl":1,"r":4.4},{"id":4,"name":"Татьяна","ref":3,"gen":3,"don":0,"up":false,"st":"delivered","rev":false,"deep":false,"desc":0,"dondown":0,"x":94.0,"y":-390.5,"cl":1,"r":4.4},{"id":5,"name":"Татьяна","ref":3,"gen":3,"don":0,"up":false,"st":"delivered","rev":false,"deep":false,"desc":0,"dondown":0,"x":85.0,"y":-371.4,"cl":1,"r":4.4},{"id":6,"name":"Анна","ref":2,"gen":2,"don":0,"up":false,"st":"active","rev":false,"deep":false,"desc":0,"dondown":0,"x":198.8,"y":-258.2,"cl":1,"r":4.4},{"id":7,"name":"Татьяна","ref":2,"gen":2,"don":0,"up":false,"st":"delivered","rev":true,"deep":true,"desc":0,"dondown":0,"x":194.3,"y":-241.6,"cl":1,"r":4.4},{"id":8,"name":"Мария","ref":2,"gen":2,"don":0,"up":false,"st":"delivered","rev":false,"deep":false,"desc":0,"dondown":0,"x":184.6,"y":-227.4,"cl":1,"r":4.4},{"id":9,"name":"Оля","ref":2,"gen":2,"don":0,"up":false,"st":"delivered","rev":true,"deep":false,"desc":0,"dondown":0,"x":170.8,"y":-217.1,"cl":1,"r":4.4},{"id":10,"name":"Наталья","ref":2,"gen":2,"don":0,"up":false,"st":"active","rev":false,"deep":false,"desc":0,"dondown":0,"x":154.3,"y":-211.9,"cl":1,"r":4.4},{"id":11,"name":"Эльвира","ref":2,"gen":2,"don":0,"up":false,"st":"delivered","rev":false,"deep":false,"desc":0,"dondown":0,"x":137.1,"y":-212.4,"cl":1,"r":4.4},{"id":12,"name":"Ноэми","ref":2,"gen":2,"don":0,"up":false,"st":"active","rev":false,"deep":false,"desc":0,"dondown":0,"x":121.0,"y":-218.4,"cl":1,"r":4.4},{"id":13,"name":"Евгения","ref":2,"gen":2,"don":0,"up":false,"st":"active","rev":false,"deep":false,"desc":0,"dondown":0,"x":107.8,"y":-229.4,"cl":1,"r":4.4},{"id":14,"name":"Дмитрий","ref":2,"gen":2,"don":0,"up":false,"st":"delivered","rev":true,"deep":false,"desc":0,"dondown":0,"x":98.8,"y":-244.1,"cl":1,"r":4.4},{"id":15,"name":"Надежда","ref":2,"gen":2,"don":0,"up":false,"st":"active","rev":false,"deep":false,"desc":0,"dondown":0,"x":95.2,"y":-260.9,"cl":1,"r":4.4},{"id":16,"name":"Света","ref":2,"gen":2,"don":0,"up":false,"st":"delivered","rev":false,"deep":true,"desc":0,"dondown":0,"x":97.2,"y":-278.0,"cl":1,"r":4.4},{"id":17,"name":"Александр","ref":2,"gen":2,"don":0,"up":false,"st":"delivered","rev":false,"deep":false,"desc":0,"dondown":0,"x":104.7,"y":-293.5,"cl":1,"r":4.4},{"id":18,"name":"Катерина","ref":2,"gen":2,"don":0,"up":false,"st":"delivered","rev":false,"deep":false,"desc":0,"dondown":0,"x":116.9,"y":-305.7,"cl":1,"r":4.4},{"id":19,"name":"Татьяна","ref":2,"gen":2,"don":0,"up":false,"st":"active","rev":false,"deep":false,"desc":0,"dondown":0,"x":132.4,"y":-313.3,"cl":1,"r":4.4},{"id":20,"name":"Ирина","ref":2,"gen":2,"don":0,"up":false,"st":"delivered","rev":true,"deep":false,"desc":0,"dondown":0,"x":149.5,"y":-315.3,"cl":1,"r":4.4},{"id":21,"name":"Светлана","ref":2,"gen":2,"don":0,"up":false,"st":"delivered","rev":true,"deep":false,"desc":0,"dondown":0,"x":166.3,"y":-311.7,"cl":1,"r":4.4},{"id":22,"name":"Лариса","ref":2,"gen":2,"don":0,"up":false,"st":"delivered","rev":true,"deep":false,"desc":0,"dondown":0,"x":181.0,"y":-302.8,"cl":1,"r":4.4},{"id":23,"name":"Наталья","ref":2,"gen":2,"don":0,"up":false,"st":"delivered","rev":true,"deep":false,"desc":1,"dondown":0,"x":85.2,"y":-324.4,"cl":1,"r":4.4},{"id":24,"name":"Эльвира","ref":23,"gen":3,"don":0,"up":false,"st":"active","rev":false,"deep":false,"desc":0,"dondown":0,"x":48.1,"y":-357.9,"cl":1,"r":4.4},{"id":25,"name":"Наталья","ref":2,"gen":2,"don":300,"up":false,"st":"donated","rev":true,"deep":true,"desc":1,"dondown":0,"x":168.4,"y":-353.0,"cl":1,"r":9.2},{"id":26,"name":"Людмила","ref":25,"gen":3,"don":0,"up":false,"st":"delivered","rev":true,"deep":false,"desc":0,"dondown":0,"x":147.9,"y":-384.9,"cl":1,"r":4.4},{"id":27,"name":"Светлана","ref":2,"gen":2,"don":0,"up":false,"st":"active","rev":false,"deep":false,"desc":0,"dondown":0,"x":215.4,"y":-244.0,"cl":1,"r":4.4},{"id":28,"name":"Елена","ref":2,"gen":2,"don":0,"up":false,"st":"delivered","rev":false,"deep":false,"desc":0,"dondown":0,"x":208.7,"y":-228.1,"cl":1,"r":4.4},{"id":29,"name":"Алла","ref":2,"gen":2,"don":0,"up":false,"st":"delivered","rev":true,"deep":false,"desc":2,"dondown":0,"x":72.8,"y":-310.5,"cl":1,"r":4.4},{"id":30,"name":"Настасья","ref":29,"gen":3,"don":0,"up":false,"st":"active","rev":false,"deep":false,"desc":0,"dondown":0,"x":34.5,"y":-339.0,"cl":1,"r":4.4},{"id":31,"name":"Анна","ref":29,"gen":3,"don":0,"up":false,"st":"active","rev":false,"deep":false,"desc":0,"dondown":0,"x":70.4,"y":-350.2,"cl":1,"r":4.4},{"id":32,"name":"Елена","ref":2,"gen":2,"don":0,"up":false,"st":"active","rev":false,"deep":false,"desc":0,"dondown":0,"x":198.4,"y":-214.3,"cl":1,"r":4.4},{"id":33,"name":"Татьяна","ref":2,"gen":2,"don":0,"up":false,"st":"delivered","rev":false,"deep":true,"desc":0,"dondown":0,"x":185.0,"y":-203.4,"cl":1,"r":4.4},{"id":34,"name":"Таня","ref":2,"gen":2,"don":0,"up":false,"st":"delivered","rev":false,"deep":false,"desc":0,"dondown":0,"x":169.4,"y":-196.0,"cl":1,"r":4.4},{"id":35,"name":"Светлана","ref":2,"gen":2,"don":0,"up":false,"st":"active","rev":false,"deep":false,"desc":0,"dondown":0,"x":152.5,"y":-192.6,"cl":1,"r":4.4},{"id":36,"name":"Ольга","ref":2,"gen":2,"don":0,"up":false,"st":"delivered","rev":true,"deep":false,"desc":0,"dondown":0,"x":135.2,"y":-193.4,"cl":1,"r":4.4},{"id":37,"name":"Мария","ref":2,"gen":2,"don":0,"up":false,"st":"delivered","rev":true,"deep":false,"desc":2,"dondown":0,"x":63.9,"y":-288.9,"cl":1,"r":4.4},{"id":38,"name":"Наталия","ref":37,"gen":3,"don":0,"up":false,"st":"delivered","rev":true,"deep":false,"desc":0,"dondown":0,"x":29.5,"y":-310.2,"cl":1,"r":4.4},{"id":39,"name":"Любовь","ref":37,"gen":3,"don":0,"up":false,"st":"active","rev":false,"deep":false,"desc":0,"dondown":0,"x":53.1,"y":-326.6,"cl":1,"r":4.4},{"id":40,"name":"Наталья","ref":2,"gen":2,"don":0,"up":false,"st":"delivered","rev":false,"deep":false,"desc":0,"dondown":0,"x":118.7,"y":-198.3,"cl":1,"r":4.4},{"id":41,"name":"Татьяна","ref":2,"gen":2,"don":0,"up":false,"st":"delivered","rev":true,"deep":false,"desc":0,"dondown":0,"x":103.8,"y":-207.1,"cl":1,"r":4.4},{"id":42,"name":"Светлана","ref":2,"gen":2,"don":0,"up":false,"st":"active","rev":false,"deep":false,"desc":0,"dondown":0,"x":91.5,"y":-219.2,"cl":1,"r":4.4},{"id":43,"name":"Ольга","ref":2,"gen":2,"don":0,"up":false,"st":"delivered","rev":false,"deep":false,"desc":0,"dondown":0,"x":82.5,"y":-233.9,"cl":1,"r":4.4},{"id":44,"name":"Анастасия","ref":2,"gen":2,"don":0,"up":false,"st":"active","rev":false,"deep":false,"desc":0,"dondown":0,"x":77.3,"y":-250.4,"cl":1,"r":4.4},{"id":45,"name":"Ирина","ref":2,"gen":2,"don":0,"up":false,"st":"active","rev":false,"deep":false,"desc":0,"dondown":0,"x":76.2,"y":-267.6,"cl":1,"r":4.4},{"id":46,"name":"Василя","ref":2,"gen":2,"don":500,"up":true,"st":"donated","rev":false,"deep":true,"desc":0,"dondown":0,"x":197.7,"y":-275.4,"cl":1,"r":10.4},{"id":47,"name":"Альбина","ref":2,"gen":2,"don":0,"up":false,"st":"delivered","rev":true,"deep":false,"desc":0,"dondown":0,"x":79.3,"y":-284.6,"cl":1,"r":4.4},{"id":48,"name":"Лариса","ref":2,"gen":2,"don":0,"up":false,"st":"delivered","rev":false,"deep":false,"desc":0,"dondown":0,"x":86.4,"y":-300.3,"cl":1,"r":4.4},{"id":49,"name":"Ирина","ref":2,"gen":2,"don":0,"up":false,"st":"delivered","rev":false,"deep":false,"desc":0,"dondown":0,"x":97.1,"y":-313.8,"cl":1,"r":4.4},{"id":50,"name":"Мария","ref":2,"gen":2,"don":0,"up":false,"st":"delivered","rev":true,"deep":false,"desc":0,"dondown":0,"x":110.8,"y":-324.4,"cl":1,"r":4.4},{"id":51,"name":"Ольга","ref":2,"gen":2,"don":0,"up":false,"st":"delivered","rev":false,"deep":false,"desc":0,"dondown":0,"x":126.6,"y":-331.4,"cl":1,"r":4.4},{"id":52,"name":"Нанейя","ref":2,"gen":2,"don":0,"up":false,"st":"delivered","rev":true,"deep":false,"desc":0,"dondown":0,"x":143.6,"y":-334.3,"cl":1,"r":4.4},{"id":53,"name":"Нина","ref":2,"gen":2,"don":0,"up":false,"st":"delivered","rev":true,"deep":false,"desc":9,"dondown":0,"x":385.9,"y":-176.7,"cl":0,"r":4.4},{"id":54,"name":"Оленька","ref":53,"gen":3,"don":0,"up":false,"st":"delivered","rev":false,"deep":false,"desc":0,"dondown":0,"x":443.1,"y":-165.7,"cl":0,"r":4.4},{"id":55,"name":"Людмила","ref":53,"gen":3,"don":0,"up":false,"st":"active","rev":false,"deep":false,"desc":0,"dondown":0,"x":424.9,"y":-158.0,"cl":0,"r":4.4},{"id":56,"name":"Лилия","ref":53,"gen":3,"don":0,"up":false,"st":"active","rev":false,"deep":false,"desc":0,"dondown":0,"x":430.5,"y":-139.2,"cl":0,"r":4.4},{"id":57,"name":"Наташа","ref":53,"gen":3,"don":0,"up":false,"st":"active","rev":false,"deep":false,"desc":0,"dondown":0,"x":409.8,"y":-133.5,"cl":0,"r":4.4},{"id":58,"name":"Елена","ref":53,"gen":3,"don":0,"up":false,"st":"active","rev":false,"deep":false,"desc":0,"dondown":0,"x":434.3,"y":-185.2,"cl":0,"r":4.4},{"id":59,"name":"Анна","ref":53,"gen":3,"don":0,"up":false,"st":"delivered","rev":true,"deep":false,"desc":3,"dondown":0,"x":463.6,"y":-139.7,"cl":0,"r":4.4},{"id":60,"name":"Ида","ref":59,"gen":4,"don":0,"up":false,"st":"active","rev":false,"deep":false,"desc":0,"dondown":0,"x":508.7,"y":-143.6,"cl":0,"r":4.4},{"id":61,"name":"Аня","ref":59,"gen":4,"don":0,"up":false,"st":"active","rev":false,"deep":false,"desc":0,"dondown":0,"x":506.7,"y":-119.2,"cl":0,"r":4.4},{"id":62,"name":"Галина","ref":59,"gen":4,"don":0,"up":false,"st":"delivered","rev":false,"deep":false,"desc":0,"dondown":0,"x":489.2,"y":-102.3,"cl":0,"r":4.4},{"id":63,"name":"Наталья","ref":2,"gen":2,"don":0,"up":false,"st":"delivered","rev":true,"deep":false,"desc":2,"dondown":0,"x":186.6,"y":-341.7,"cl":1,"r":4.4},{"id":64,"name":"Елизавета","ref":63,"gen":3,"don":0,"up":false,"st":"delivered","rev":false,"deep":false,"desc":0,"dondown":0,"x":208.8,"y":-381.9,"cl":1,"r":4.4},{"id":65,"name":"Елена","ref":63,"gen":3,"don":0,"up":false,"st":"delivered","rev":false,"deep":false,"desc":0,"dondown":0,"x":185.9,"y":-391.0,"cl":1,"r":4.4},{"id":66,"name":"Анна","ref":2,"gen":2,"don":0,"up":false,"st":"active","rev":false,"deep":false,"desc":0,"dondown":0,"x":160.8,"y":-333.1,"cl":1,"r":4.4},{"id":67,"name":"Наталья","ref":2,"gen":2,"don":0,"up":false,"st":"delivered","rev":false,"deep":false,"desc":0,"dondown":0,"x":177.2,"y":-327.7,"cl":1,"r":4.4},{"id":68,"name":"Дина","ref":2,"gen":2,"don":0,"up":false,"st":"delivered","rev":true,"deep":true,"desc":2,"dondown":0,"x":129.1,"y":-351.1,"cl":1,"r":4.4},{"id":69,"name":"Татьяна","ref":68,"gen":3,"don":0,"up":false,"st":"active","rev":false,"deep":false,"desc":0,"dondown":0,"x":107.3,"y":-403.4,"cl":1,"r":4.4},{"id":70,"name":"Юлия","ref":68,"gen":3,"don":0,"up":false,"st":"delivered","rev":false,"deep":false,"desc":0,"dondown":0,"x":125.5,"y":-408.1,"cl":1,"r":4.4},{"id":71,"name":"Светлана","ref":2,"gen":2,"don":0,"up":false,"st":"delivered","rev":false,"deep":false,"desc":0,"dondown":0,"x":191.8,"y":-318.6,"cl":1,"r":4.4},{"id":72,"name":"Ирина","ref":2,"gen":2,"don":0,"up":false,"st":"delivered","rev":false,"deep":false,"desc":0,"dondown":0,"x":203.8,"y":-306.1,"cl":1,"r":4.4},{"id":73,"name":"Екатерина","ref":2,"gen":2,"don":0,"up":false,"st":"delivered","rev":true,"deep":false,"desc":4,"dondown":0,"x":145.9,"y":-352.7,"cl":1,"r":4.4},{"id":74,"name":"Надежда","ref":73,"gen":3,"don":0,"up":false,"st":"delivered","rev":false,"deep":false,"desc":0,"dondown":0,"x":147.1,"y":-408.1,"cl":1,"r":4.4},{"id":75,"name":"Татьяна","ref":73,"gen":3,"don":0,"up":false,"st":"active","rev":false,"deep":false,"desc":0,"dondown":0,"x":126.5,"y":-388.6,"cl":1,"r":4.4},{"id":76,"name":"Валентина","ref":73,"gen":3,"don":0,"up":false,"st":"active","rev":false,"deep":false,"desc":0,"dondown":0,"x":164.4,"y":-397.8,"cl":1,"r":4.4},{"id":77,"name":"Наталия","ref":73,"gen":3,"don":0,"up":false,"st":"active","rev":false,"deep":false,"desc":0,"dondown":0,"x":111.6,"y":-372.8,"cl":1,"r":4.4},{"id":78,"name":"Екатерина","ref":2,"gen":2,"don":0,"up":false,"st":"active","rev":false,"deep":false,"desc":0,"dondown":0,"x":212.4,"y":-291.2,"cl":1,"r":4.4},{"id":79,"name":"Ольга","ref":2,"gen":2,"don":0,"up":false,"st":"delivered","rev":true,"deep":false,"desc":1,"dondown":0,"x":202.9,"y":-329.9,"cl":1,"r":4.4},{"id":80,"name":"Наталья","ref":79,"gen":3,"don":0,"up":false,"st":"delivered","rev":true,"deep":false,"desc":0,"dondown":0,"x":189.4,"y":-368.3,"cl":1,"r":4.4},{"id":81,"name":"Юлия","ref":2,"gen":2,"don":0,"up":false,"st":"delivered","rev":true,"deep":false,"desc":2,"dondown":0,"x":97.3,"y":-337.2,"cl":1,"r":4.4},{"id":82,"name":"Ирина","ref":81,"gen":3,"don":0,"up":false,"st":"delivered","rev":true,"deep":false,"desc":0,"dondown":0,"x":61.2,"y":-374.3,"cl":1,"r":4.4},{"id":83,"name":"Алина","ref":81,"gen":3,"don":0,"up":false,"st":"active","rev":false,"deep":false,"desc":0,"dondown":0,"x":73.0,"y":-389.6,"cl":1,"r":4.4},{"id":84,"name":"Анастасия","ref":1,"gen":1,"don":0,"up":false,"st":"active","rev":false,"deep":false,"desc":0,"dondown":0,"x":-25.7,"y":27.5,"cl":2,"r":4.4},{"id":85,"name":"Юлия","ref":1,"gen":1,"don":0,"up":false,"st":"delivered","rev":false,"deep":true,"desc":0,"dondown":0,"x":30.4,"y":-20.9,"cl":2,"r":4.4},{"id":86,"name":"Алина","ref":1,"gen":1,"don":0,"up":false,"st":"delivered","rev":false,"deep":true,"desc":0,"dondown":0,"x":19.9,"y":31.7,"cl":2,"r":4.4},{"id":87,"name":"Ольга","ref":1,"gen":1,"don":0,"up":false,"st":"off","rev":false,"deep":false,"desc":0,"dondown":0,"x":-31.4,"y":-19.9,"cl":2,"r":4.4}],"clusters":[{"kind":"branch","n":10,"don":0,"name":"Нина","R":112.21921916437786,"cx":449.7,"cy":-146.3,"rr":92.7,"top":-185.2},{"kind":"core","n":72,"don":800,"name":"Дмитрий","R":250.61731573020282,"cx":131.8,"cy":-302.0,"rr":134.5,"top":-408.1},{"kind":"core","n":5,"don":0,"name":"ТаргетХантер","R":88.13776741499453,"cx":-1.4,"cy":3.7,"rr":62.2,"top":-20.9}],"pub":true};
+const N = DATA.nodes, CL = DATA.clusters;
+const PUB = !!DATA.pub;   // публичная сборка: без vk-id и ссылок на профили
+const byId = new Map(N.map(n=>[n.id,n]));
+const kids = new Map();
+N.forEach(n=>{ if(n.ref!==null){ if(!kids.has(n.ref)) kids.set(n.ref,[]); kids.get(n.ref).push(n.id);} });
+const fmt = x => x.toLocaleString('ru-RU');
+const dsumOf = n => n.don + (n.up && !n.don ? 1000 : 0);
+
+const donors = N.filter(n=>dsumOf(n)>0);
+const reviewed = N.filter(n=>n.rev);
+const totalDon = N.reduce((s,n)=>s+dsumOf(n),0);
+// «Не заходили» — те, кто по чьей-то ссылке пришёл, но разговор не начал.
+// В общем счётчике «людей» они врали бы почти вдвое, поэтому отдельным числом.
+const cold = N.filter(n=>n.st==='cold');
+const funnel = N.filter(n=>n.st!=='cold');
+const maxGen = Math.max(...N.map(n=>n.gen));
+document.getElementById('stats').innerHTML =
+  `<div class="stat"><b>${fmt(funnel.length)}</b><span>в воронке</span></div>`+
+  (cold.length?`<div class="stat"><b>${fmt(cold.length)}</b><span>не заходили</span></div>`:'')+
+  `<div class="stat"><b>${CL.length}</b><span>скоплений</span></div>`+
+  `<div class="stat"><b>${maxGen}</b><span>колен</span></div>`+
+  `<div class="stat"><b>${donors.length}</b><span>донативших</span></div>`+
+  `<div class="stat"><b>${reviewed.length}</b><span>с отзывом</span></div>`+
+  `<div class="stat gold"><b>${fmt(totalDon)} ₽</b><span>донатов</span></div>`;
+
+// ── отрисовка ───────────────────────────────────────────────────────
+const svgNS='http://www.w3.org/2000/svg';
+const world=document.getElementById('world');
+const el=(t,at)=>{const e=document.createElementNS(svgNS,t);for(const k in at)e.setAttribute(k,at[k]);return e;};
+const gNeb=el('g',{}), gEdges=el('g',{}), gCname=el('g',{}), gNodes=el('g',{}), gLabs=el('g',{});
+world.append(gNeb,gEdges,gCname,gNodes,gLabs);
+
+// туманности — мягкая подложка под каждым скоплением
+CL.forEach(c=>{
+  gNeb.append(el('circle',{cx:c.cx,cy:c.cy,r:c.rr*1.15,
+    fill:'url(#neb)','fill-opacity':'var(--neb-op)'}));
+});
+
+// связи
+const edgeEls=new Map();
+N.forEach(n=>{
+  if(n.ref===null) return;
+  const q=byId.get(n.ref);
+  const mx=(n.x+q.x)/2, my=(n.y+q.y)/2;
+  const dx=n.x-q.x, dy=n.y-q.y;
+  const bow=0.10;                       // лёгкая дуга — линии не сливаются в веер
+  const path=el('path',{d:`M${q.x},${q.y} Q${(mx-dy*bow).toFixed(1)},${(my+dx*bow).toFixed(1)} ${n.x},${n.y}`,
+    fill:'none',stroke:'var(--edge)','stroke-width':1,
+    'vector-effect':'non-scaling-stroke'});
+  path.style.strokeOpacity='var(--edge-op)';
+  gEdges.append(path); edgeEls.set(n.id, path);
+});
+
+// имена скоплений — как названия созвездий на карте неба
+// Имя скопления стоит НАД своим облаком. В центре оно тонуло под точками —
+// у Дмитрия и Николая ядро плотное, надпись просто не читалась. А прежняя
+// двусмысленность «чьё это имя» ушла сама: после упаковки жёсткими дисками
+// между скоплениями не меньше 69 px пустоты.
+// Имя созвездия — крупная разрядка поверх облака: полное «СВЕТЛАНА
+// ПРОКОПЬЕВА» перекрыло бы полскопления. Но и одно имя не годится: Светлан
+// среди голов веток две, и на карте они неразличимы. Берём имя и инициал.
+const initialed = x => { const p=x.split(' '); return p.length>1 ? `${p[0]} ${p[1][0]}.` : p[0]; };
+const cnameEls=CL.map(c=>{
+  c.short = initialed(c.name);
+  const t=el('text',{class:'cname','text-anchor':'middle',x:c.cx});
+  t.textContent=c.short;
+  const s=el('text',{class:'csub','text-anchor':'middle',x:c.cx});
+  s.textContent=`${c.n} чел` + (c.don? ` · ${fmt(c.don)} ₽`:'');
+  gCname.append(t,s);
+  return {c,t,s};
+});
+
+const cnameOrder=[...cnameEls].sort((a,b)=>b.c.n-a.c.n);
+
+const fillOf = n => n.st==='donated'?'var(--don)':n.st==='delivered'?'var(--del)':n.st==='active'?'var(--act)':n.st==='cold'?'var(--cold)':'none';
+const nodeEls=new Map();
+N.forEach(n=>{
+  const g=el('g',{transform:`translate(${n.x},${n.y})`});
+  if(n.st==='donated') g.append(el('circle',{r:n.r+3.5,fill:'var(--halo)'}));
+  // Отзыв — вторая ось, независимая от статуса: выложить пост может и тот,
+  // кто донатил, и тот, кто просто получил разбор. Поэтому не пятый цвет, а
+  // обводка поверх любого из четырёх. Обводка ещё и безопаснее цвета: её
+  // видно при любой форме дальтонизма, а золото «доната» и зелёное «выдан»
+  // при протанопии расходятся всего на ΔE 10 — запас есть, но небольшой.
+  if(n.rev){
+    const rr=el('circle',{r:n.r+4.4,fill:'none',stroke:'var(--rev)',
+      'stroke-width':1.5,'vector-effect':'non-scaling-stroke'});
+    // Толщина обводки не масштабируется (иначе на обзоре её не видно), а
+    // радиус — масштабируется. На общем виде это даёт кольцо радиусом в
+    // полпикселя с полуторапиксельной линией: точка превращается в бублик,
+    // и вся карта начинает выглядеть как решето. Поэтому обводка проявляется
+    // по мере приближения — как и подписи.
+    rr.style.strokeOpacity='var(--rev-op)';
+    g.append(rr);
+  }
+  if(n.gen===0) g.append(el('circle',{r:n.r+9,fill:'none',stroke:'var(--ink-3)',
+    'stroke-width':1,'stroke-dasharray':'2 4'}));
+  // «Отказ» — кольцо, «не заходили» — глухая точка потише и помельче: это
+  // соседние по смыслу состояния, и разводить их цветом пришлось бы за счёт
+  // трёх живых статусов на том же круге. Разводит форма, а не оттенок.
+  const c = n.st==='off'
+    ? el('circle',{r:4.4,fill:'var(--bg)',stroke:'var(--off)','stroke-width':1.5,
+        'vector-effect':'non-scaling-stroke'})
+    : n.st==='cold'
+    ? el('circle',{r:3.4,fill:'var(--cold)'})
+    : el('circle',{r:n.r,fill:fillOf(n),stroke:'var(--bg)','stroke-width':n.gen===0?2:1,
+        'vector-effect':'non-scaling-stroke'});
+  g.append(c);
+  g.append(el('circle',{r:Math.max(n.r+7,11),fill:'transparent'}));
+  g.style.cursor='pointer';
+  g.addEventListener('pointerenter',e=>{ if(e.pointerType!=='touch') showTip(n,e); });
+  g.addEventListener('pointermove',e=>{ if(e.pointerType!=='touch') moveTip(e); });
+  g.addEventListener('pointerleave',hideTip);
+  g.addEventListener('click',e=>{ e.stopPropagation(); if(gestureMoved()) return; hideTip(); select(n.id); });
+  gNodes.append(g); nodeEls.set(n.id,g);
+});
+
+// ── подписи людей: экранный размер, показываем только непересекающиеся ─
+// Фамилия нужна: Светлан на карте два десятка, и без фамилии подпись
+// ничего не различает. Но полное имя вдвое шире, а место на общем виде
+// конкурентное — поэтому у каждой подписи ДВА варианта. Сначала пробуем
+// полный, не влез — короткий, не влез и он — прячем. Так фамилии появляются
+// везде, где есть воздух, и не выдавливают соседние подписи там, где тесно.
+const labels=N.map(n=>{
+  const ds=dsumOf(n);
+  const money = ds ? ` · ${fmt(ds)} ₽` : '';
+  const full = n.name + money;
+  const short = n.name.split(' ')[0] + money;
+  const t=el('text',{class:'nodelab'+(ds?' don':'')+(n.gen===0?' root':'')});
+  t.textContent = full;
+  t.style.display='none';
+  gLabs.append(t);
+  const prio = n.gen===0 ? 1e12 : ds ? 1e6+ds : n.desc>=8 ? 1e3+n.desc : 1;
+  const wOf = x => x.length*6.9+12;
+  return {n, el:t, prio, full, short,
+          wFull:wOf(full), wShort:wOf(short), cur:''};
+}).sort((a,b)=>b.prio-a.prio);
+
+let labelFilter=null;
+function updateLabels(){
+  const kept=[], k=vw.k, cx=innerWidth/2+vw.x, cy=innerHeight/2+vw.y;
+  const hit=(x,y,w,h)=>{
+    for(const r of kept)
+      if(x<r[0]+r[2] && x+w>r[0] && y<r[1]+r[3] && y+h>r[1]) return true;
+    return false;
+  };
+
+  // Сначала — названия скоплений. Кегль привязан к размеру облака: крупное
+  // читается уже на обзоре, мелкие проявляются по мере приближения. Место они
+  // занимают первыми — при тесноте выживает имя области, а не имя человека.
+  const showC = !labelFilter;
+  for(const item of cnameOrder){
+    const {c,t,s:sub}=item;
+    const fsw=Math.max(16, c.rr*0.26);            // мировой кегль ~ размеру облака
+    if(!showC || fsw*k<9.5){ t.style.display='none'; sub.style.display='none'; continue; }
+    const fs=Math.min(fsw, 30/k);
+    const showSub = fs*k>12;
+    const ty = c.top - 16/k - (showSub? fs*0.85 : 0);
+    const sx=cx+c.cx*k, sy=cy+ty*k;
+    if(sx<-60||sx>innerWidth+60||sy<34||sy>innerHeight+10){
+      t.style.display='none'; sub.style.display='none'; continue;
+    }
+    const w=c.short.length*fs*k*0.80+10, hh=fs*k;
+    if(sx-w/2<4 || sx+w/2>innerWidth-4){ t.style.display='none'; sub.style.display='none'; continue; }
+    if(hit(sx-w/2, sy-hh, w, hh*(showSub?2.1:1.35))){
+      t.style.display='none'; sub.style.display='none'; continue;
+    }
+    kept.push([sx-w/2, sy-hh, w, hh*(showSub?2.1:1.35)]);
+    t.style.display='block'; t.setAttribute('font-size',fs); t.setAttribute('y', ty);
+    sub.style.display=showSub?'block':'none';
+    if(showSub){ sub.setAttribute('font-size', Math.max(11/k, fs*0.40));
+                 sub.setAttribute('y', ty + fs*0.85); }
+  }
+
+  // Затем — люди, по приоритету: корень → крупные донаты → головы ветвей
+  const fs=11.5/k;
+  let shown=0;
+  for(const L of labels){
+    const n=L.n;
+    if(labelFilter && !labelFilter.has(n.id)){ L.el.style.display='none'; continue; }
+    const sx=cx+n.x*k, sy=cy+n.y*k;
+    if(shown>=150 || sx<-90||sx>innerWidth-20||sy<28||sy>innerHeight-10){
+      L.el.style.display='none'; continue;
+    }
+    const x0=sx+9, y0=sy-8;
+    // Подпись рисуется ВПРАВО от точки постоянным кеглем. Раньше она могла
+    // начаться у самого края и уехать за него — на телефоне это половина
+    // подписей в столбце «обрезано». Не помещается целиком — не показываем:
+    // обрезанное «Мария · 1 5» хуже, чем ничего, а человек всё равно виден.
+    const room = w => x0+w<=innerWidth-8 && !hit(x0,y0,w,16);
+    let txt=null, wUse=0;
+    if(room(L.wFull))      { txt=L.full;  wUse=L.wFull; }
+    else if(room(L.wShort)){ txt=L.short; wUse=L.wShort; }
+    if(!txt){ L.el.style.display='none'; continue; }
+    kept.push([x0,y0,wUse,16]); shown++;
+    if(L.cur!==txt){ L.el.textContent=txt; L.cur=txt; }
+    L.el.style.display='block';
+    L.el.setAttribute('font-size',fs);
+    L.el.setAttribute('x', n.x + (n.r+5)/k);
+    L.el.setAttribute('y', n.y + 4/k);
+  }
+}
+let cullRaf=0;
+function requestCull(){ if(!cullRaf) cullRaf=requestAnimationFrame(()=>{cullRaf=0; updateLabels();}); }
+
+// ── чипы скоплений ──────────────────────────────────────────────────
+const chipList=CL.map((c,i)=>({...c,i})).sort((a,b)=>b.don-a.don || b.n-a.n).slice(0,9);
+document.getElementById('chips').innerHTML =
+  `<span class="cap">скопления:</span>` +
+  chipList.map(c=>`<button class="chip" data-c="${c.i}">${c.name} · ${c.n} чел${c.don?` · <b>${fmt(c.don)} ₽</b>`:''}</button>`).join('');
+document.getElementById('chips').addEventListener('click',e=>{
+  const b=e.target.closest('.chip'); if(!b) return;
+  const c=CL[+b.dataset.c];
+  clearSel(); flyTo(c.cx, c.cy, Math.min(1.4, (Math.min(innerWidth,innerHeight)*0.42)/c.rr));
+});
+
+// был ли это жест, а не тычок: порог 8 px по сумме смещений
+function gestureMoved(){ return typeof moved==='number' && moved>8; }
+
+// ── легенда как фильтр ──────────────────────────────────────────────
+// «Много зелёных» — вопрос, на который карта должна отвечать сама. Клик по
+// метке гасит всех остальных: видно и сколько их, и где они сидят. Повторный
+// клик снимает. Активный фильтр ОДИН: два одновременно почти всегда дают
+// пустой экран, а объяснять пересечение множеств легенде нечем.
+function clearLegend(){
+  if(!legendF) return;
+  legendF=null;
+  document.querySelectorAll('#legend button').forEach(b=>b.setAttribute('aria-pressed','false'));
+  if(legHits) legHits.textContent='';
+}
+function applyLegend(){
+  document.querySelectorAll('#legend button')
+    .forEach(b=>b.setAttribute('aria-pressed', String(b.dataset.f===legendF)));
+  if(!legendF){
+    legHits.textContent='';
+    if(!selected && !q.value.trim()){
+      nodeEls.forEach(g=>g.style.opacity=1); labelFilter=null; requestCull();
+    }
+    return;
+  }
+  const m = legendF==='rev' ? N.filter(n=>n.rev) : N.filter(n=>n.st===legendF);
+  const ids=new Set(m.map(n=>n.id));
+  nodeEls.forEach((g,nid)=>g.style.opacity=ids.has(nid)?1:.08);
+  labelFilter=ids; requestCull();
+  legHits.textContent = `${fmt(m.length)} чел.`;
+}
+
+// ── тултип ──────────────────────────────────────────────────────────
+const tip=document.getElementById('tip');
+const stName={donated:'донатил(а)',delivered:'разбор выдан',active:'в воронке',off:'отказ / тишина',cold:'перешёл(шла), но не написал(а)'};
+function showTip(n,e){
+  const ds=dsumOf(n);
+  tip.innerHTML=`<b>${n.name}</b>${PUB?'':` <span style="color:var(--ink-3)">id${n.id}</span>`}`+
+    `<div class="row">${n.gen? n.gen+'-е колено':'корень'} · ${stName[n.st]}${n.rev?' · отзыв ✓':''}${n.deep?' · глубокий':''}</div>`+
+    `<div class="row">скопление: ${CL[n.cl].name}</div>`+
+    (ds?`<div class="row don">донат ${fmt(ds)} ₽${n.up?' (вход 1000₽)':''}</div>`:'')+
+    (n.desc?`<div class="row">ветка: ${n.desc} чел.${n.coldd?` (зашли ${n.desc-n.coldd})`:''}${n.dondown?` · ${fmt(n.dondown)} ₽`:''}</div>`:'');
+  tip.style.display='block'; moveTip(e);
+}
+function moveTip(e){
+  const w=tip.offsetWidth,h=tip.offsetHeight;
+  tip.style.left=Math.min(e.clientX+14,innerWidth-w-8)+'px';
+  tip.style.top=Math.min(e.clientY+14,innerHeight-h-8)+'px';
+}
+function hideTip(){tip.style.display='none';}
+
+// ── выбор ───────────────────────────────────────────────────────────
+const panel=document.getElementById('panel');
+let selected=null, legendF=null, legHits=null;
+function chainUp(id){const out=[];let cur=byId.get(id);
+  while(cur){out.unshift(cur);cur=cur.ref!==null?byId.get(cur.ref):null;}return out;}
+function subtreeIds(id){const out=new Set([id]);const st=[...(kids.get(id)||[])];
+  while(st.length){const c=st.pop();out.add(c);st.push(...(kids.get(c)||[]));}return out;}
+function select(id){
+  selected=id; clearLegend();
+  const up=new Set(chainUp(id).map(n=>n.id)), down=subtreeIds(id);
+  const vis=new Set([...up,...down]);
+  nodeEls.forEach((g,nid)=>{g.style.opacity=vis.has(nid)?1:.12;});
+  labelFilter=vis; requestCull();
+  edgeEls.forEach((p,to)=>{
+    const n=byId.get(to);
+    if(up.has(to)&&up.has(n.ref)){p.style.stroke='var(--hl)';p.style.strokeOpacity=.95;p.style.strokeWidth=2.2;}
+    else if(down.has(to)){p.style.stroke='var(--edge)';p.style.strokeOpacity=.5;p.style.strokeWidth=1.3;}
+    else{p.style.stroke='var(--edge)';p.style.strokeOpacity=.03;p.style.strokeWidth=1;}
+  });
+  const n=byId.get(id), ds=dsumOf(n);
+  panel.innerHTML=`<button class="close" onclick="clearSel()">✕</button>`+
+    `<h2 class="serif">${n.name}</h2><div class="sub">${PUB?'':'id'+n.id+' · '}${n.gen? n.gen+'-е колено':'корень древа'} · скопление ${CL[n.cl].name}</div>`+
+    `<div class="kv"><span>статус</span><b>${stName[n.st]}</b></div>`+
+    `<div class="kv"><span>донат</span><b class="${ds?'gold':''}">${ds?fmt(ds)+' ₽':'—'}</b></div>`+
+    `<div class="kv"><span>отзыв-пост</span><b>${n.rev?'есть':'нет'}</b></div>`+
+    `<div class="kv"><span>привёл(а) лично</span><b>${(kids.get(id)||[]).length}</b></div>`+
+    `<div class="kv"><span>вся ветка</span><b>${n.desc} чел.</b></div>`+
+    // Ссылку взяли N раз, а разговор начали N−coldd. Разница — цена
+    // рычага; без неё «вся ветка» считает вместе тех, кто дошёл до
+    // разбора, и тех, кто только кликнул.
+    (n.coldd?`<div class="kv"><span>из них не зашли</span><b>${n.coldd} чел.</b></div>`:'')+
+    `<div class="kv"><span>донаты ветки</span><b class="${n.dondown?'gold':''}">${n.dondown?fmt(n.dondown)+' ₽':'—'}</b></div>`+
+    `<h3>цепочка сарафана</h3><div class="chain">`+
+    chainUp(id).map(c=>`<a href="#" onclick="select(${c.id});return false" class="${c.id===id?'cur':''}">`+
+      `${c.name}${dsumOf(c)?` <i>${fmt(dsumOf(c))} ₽</i>`:''}</a>`).join('')+
+    (PUB? '</div>' : `</div><a class="vk" target="_blank" rel="noopener" href="https://vk.com/id${n.id}">открыть диалог ВК ↗</a>`);
+  panel.style.display='block'; document.body.classList.add('panel-open');
+}
+function clearSel(){
+  selected=null; labelFilter=null; panel.style.display='none';
+  document.body.classList.remove('panel-open');
+  nodeEls.forEach(g=>g.style.opacity=1);
+  edgeEls.forEach(p=>{p.style.stroke='var(--edge)';p.style.strokeWidth=1;
+    p.style.strokeOpacity='var(--edge-op)';});
+  requestCull();
+}
+
+// ── поиск ───────────────────────────────────────────────────────────
+// Ищем по имени, по фамилии и по vk-id. Три вещи, из-за которых наивный
+// `includes` не годится:
+//  · «ё» и «е» — Алёна/Алена, Артём/Артем: люди набирают как придётся;
+//  · порядок слов — «иванова светлана» должно находить «Светлана Иванова»,
+//    поэтому запрос режем на слова и требуем, чтобы нашлось КАЖДОЕ;
+//  · id — точное совпадение должно быть первым, а не потеряться среди тех,
+//    у кого этот кусок цифр просто встретился внутри.
+const nrm = x => x.toLowerCase().replace(/ё/g,'е').replace(/\s+/g,' ').trim();
+const IDX = N.map(n=>({n, s:nrm(n.name), id:String(n.id)}));
+function findAll(query){
+  const qs = nrm(query);
+  if(!qs) return [];
+  const digits = qs.replace(/^id\s*/, '');
+  if(/^\d{3,}$/.test(digits)){
+    const exact = IDX.filter(r=>r.id===digits);
+    if(exact.length) return exact.map(r=>r.n);
+    return IDX.filter(r=>r.id.includes(digits)).map(r=>r.n);
+  }
+  const parts = qs.split(' ').filter(Boolean);
+  return IDX.filter(r=>parts.every(p=>r.s.includes(p)||r.id.includes(p))).map(r=>r.n);
+}
+const q=document.getElementById('q'), hits=document.getElementById('hits');
+let found=[], fpos=-1;
+q.addEventListener('input',()=>{
+  if(legendF){ clearLegend(); }
+  found=findAll(q.value); fpos=-1;
+  if(!q.value.trim()){
+    hits.textContent='';
+    if(!selected){nodeEls.forEach(g=>g.style.opacity=1); labelFilter=null; requestCull();}
+    return;
+  }
+  hits.textContent = found.length ? found.length+' найд.' : 'нет';
+  const ids=new Set(found.map(n=>n.id));
+  nodeEls.forEach((g,nid)=>g.style.opacity=ids.has(nid)?1:.1);
+  labelFilter=ids; requestCull();
+});
+// Enter листает найденных по кругу: однофамильцев и тёзок в списке из 900
+// человек всегда несколько, и прыжок только к первому — это тупик.
+q.addEventListener('keydown',e=>{
+  if(e.key!=='Enter') return;
+  if(!found.length) return;
+  fpos=(fpos+1)%found.length;
+  const m=found[fpos];
+  hits.textContent = found.length>1 ? `${fpos+1} из ${found.length}` : '1 найд.';
+  select(m.id); flyTo(m.x, m.y, Math.max(vw.k, 1));
+});
+
+// ── пан/зум ─────────────────────────────────────────────────────────
+const stage=document.getElementById('stage'), svg=document.getElementById('svg');
+const BB=(()=>{const xs=N.map(n=>n.x),ys=N.map(n=>n.y);
+  return {x0:Math.min(...xs),x1:Math.max(...xs),y0:Math.min(...ys),y1:Math.max(...ys)};})();
+let vw={x:0,y:0,k:1};
+const clampK = k => Math.min(Math.max(Number.isFinite(k)&&k>0?k:1, .06), 5);
+const REV_FADE=[0.22,0.45];        // от какого масштаба и до какого проявляется обводка
+function apply(){
+  world.setAttribute('transform',
+    `translate(${innerWidth/2+vw.x},${innerHeight/2+vw.y}) scale(${vw.k})`);
+  const [a,b]=REV_FADE;
+  world.style.setProperty('--rev-op',
+    String(Math.min(1, Math.max(0, (vw.k-a)/(b-a))).toFixed(3)));
+  requestCull();
+}
+function fit(){
+  // Поля считаем в ПИКСЕЛЯХ ЭКРАНА, а не в координатах карты. Подписи имён
+  // рисуются постоянным кеглем поверх мира: на общем виде (k≈0.11) запас в
+  // 240 «мировых» единиц — это 27 px на экране, и крайние подписи вида
+  // «Евгения · 500 ₽» уезжали за край. Запас должен быть в тех же единицах,
+  // в каких живёт то, что мы прячем.
+  const w=Math.max(BB.x1-BB.x0,1), h=Math.max(BB.y1-BB.y0,1);
+  const mx=innerWidth<760?26:44, my=22;
+  // На телефоне resize прилетает и в промежуточных состояниях — при показе
+  // и скрытии адресной строки, при повороте. Ловили innerHeight меньше 120:
+  // высота под карту уходила в минус, а с ней и масштаб — карта выворачивалась
+  // наизнанку и оставалась такой до следующего resize. Поэтому пол по высоте
+  // и общий зажим масштаба: вид может быть неудобным, но не сломанным.
+  // Шапка на телефоне переносится в 4–5 строк и съедает треть экрана.
+  // Прежняя поправка «+46» была подогнана под десктоп, и на телефоне карта
+  // сползала в нижнюю пустоту. Меряем шапку и центрируем в том, что осталось.
+  const hh=document.querySelector('header').getBoundingClientRect().height;
+  const top=hh+my, bot=innerHeight-my, availH=Math.max(bot-top,160);
+  vw.k=clampK(Math.min(Math.max(innerWidth-2*mx,120)/w, availH/h));
+  vw.x=-(BB.x0+BB.x1)/2*vw.k;
+  vw.y=(top+bot)/2-innerHeight/2-(BB.y0+BB.y1)/2*vw.k;
+  apply();
+}
+addEventListener('resize',fit);
+function flyTo(x,y,k){
+  const k0=vw.k,x0=vw.x,y0=vw.y, x1=-x*k, y1=-y*k+20;
+  const t0=performance.now(), dur=matchMedia('(prefers-reduced-motion:reduce)').matches?0:420;
+  (function step(t){
+    const p=dur? Math.min(1,(t-t0)/dur) : 1, e=1-Math.pow(1-p,3);
+    vw.k=k0+(k-k0)*e; vw.x=x0+(x1-x0)*e; vw.y=y0+(y1-y0)*e; apply();
+    if(p<1) requestAnimationFrame(step);
+  })(t0);
+}
+// масштабирование вокруг точки экрана: под пальцем (или курсором) остаётся
+// то же место карты — иначе на телефоне при щипке уплывает как раз то, что
+// человек пытался рассмотреть
+function zoomAt(nk, sx, sy){
+  nk = clampK(nk);
+  const cx = sx-innerWidth/2, cy = sy-innerHeight/2;
+  vw.x = cx-(cx-vw.x)*(nk/vw.k); vw.y = cy-(cy-vw.y)*(nk/vw.k); vw.k = nk; apply();
+}
+stage.addEventListener('wheel',e=>{
+  e.preventDefault();
+  zoomAt(vw.k*Math.exp(-e.deltaY*.0016), e.clientX, e.clientY);
+},{passive:false});
+
+// Пальцев может быть больше одного, и это не «мышь, только пальцем»:
+// держим ВСЕ активные указатели и по их числу решаем, что происходит.
+// Один — тащим карту, два — щипок: масштаб по изменению расстояния между
+// пальцами плюс перенос за смещением их середины (щипок почти всегда идёт
+// вместе со сдвигом руки, и без второго слагаемого карта дёргается).
+const ptrs = new Map();
+let pinch = null, moved = 0;
+const pinchNow = () => {
+  const [a,b] = [...ptrs.values()];
+  return {d: Math.hypot(a.x-b.x, a.y-b.y) || 1, cx:(a.x+b.x)/2, cy:(a.y+b.y)/2};
+};
+stage.addEventListener('pointerdown',e=>{
+  ptrs.set(e.pointerId,{x:e.clientX,y:e.clientY});
+  try{ stage.setPointerCapture(e.pointerId); }catch(_){}
+  if(ptrs.size===1) moved=0;
+  if(ptrs.size===2) pinch=pinchNow();
+  stage.classList.add('dragging');
+});
+stage.addEventListener('pointermove',e=>{
+  const p=ptrs.get(e.pointerId); if(!p) return;
+  const dx=e.clientX-p.x, dy=e.clientY-p.y;
+  p.x=e.clientX; p.y=e.clientY;
+  moved += Math.abs(dx)+Math.abs(dy);
+  if(ptrs.size===1){ vw.x+=dx; vw.y+=dy; apply(); return; }
+  if(ptrs.size>=2 && pinch){
+    const g=pinchNow();
+    zoomAt(vw.k*(g.d/pinch.d), pinch.cx, pinch.cy);
+    vw.x += g.cx-pinch.cx; vw.y += g.cy-pinch.cy;
+    pinch=g; apply();
+  }
+});
+function endPtr(e){
+  ptrs.delete(e.pointerId);
+  if(ptrs.size<2) pinch=null;
+  if(ptrs.size===2) pinch=pinchNow();   // палец убрали, но щипок продолжается
+  if(!ptrs.size) stage.classList.remove('dragging');
+}
+stage.addEventListener('pointerup',endPtr);
+stage.addEventListener('pointercancel',endPtr);
+
+// двойное касание = сброс. dblclick на тач-экранах приходит не везде и не
+// всегда, поэтому считаем сами; порог по сдвигу отсекает случайный дубль
+// в конце протяжки.
+let lastTap=0;
+stage.addEventListener('pointerup',e=>{
+  if(e.pointerType==='mouse') return;
+  const t=e.timeStamp;
+  if(t-lastTap<320 && moved<12){ clearSel(); fit(); lastTap=0; } else lastTap=t;
+});
+stage.addEventListener('dblclick',()=>{clearSel();fit();});
+
+document.getElementById('zin') .addEventListener('click',()=>zoomAt(vw.k*1.5,innerWidth/2,innerHeight/2));
+document.getElementById('zout').addEventListener('click',()=>zoomAt(vw.k/1.5,innerWidth/2,innerHeight/2));
+document.getElementById('zfit').addEventListener('click',()=>{clearSel();fit();});
+
+svg.addEventListener('click',e=>{if(e.target===svg||e.target===world)clearSel();});
+
+legHits=document.createElement('span');
+legHits.style.cssText='font-size:11px;color:var(--ink-3);margin-left:2px';
+document.getElementById('legend').append(legHits);
+document.getElementById('legend').addEventListener('click',e=>{
+  const b=e.target.closest('button'); if(!b) return;
+  const next = legendF===b.dataset.f ? null : b.dataset.f;
+  clearSel(); q.value=''; hits.textContent=''; found=[]; fpos=-1;
+  legendF = next;
+  applyLegend();
+});
+
+fit();
+</script>
